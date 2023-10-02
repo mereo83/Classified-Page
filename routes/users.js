@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../data/db');
+const session = require('express-session');
+
+// Middleware for session management
+router.use(
+  session({
+    secret: 'your_secret_key', // Change this to a strong secret
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 // Create Account
 router.post('/register', (req, res) => {
@@ -28,17 +38,15 @@ router.post('/login', (req, res) => {
       return res.status(500).json({ error: 'Internal server error' });
     }
 
-    const rows = results[0];
-
-    if (rows.length === 0) {
+    if (results.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const user = rows[0];
+    const user = results[0]; // Access the first row of results
 
     // Verify the password (You should replace this with password hashing in the future)
     if (password === user.password) {
-      // Create a session for the user (you will need to use a session middleware, e.g., express-session)
+      // Create a session for the user
       req.session.user = { id: user.id, username: user.username, email: user.email };
       return res.status(200).json({ message: 'Login successful' });
     } else {
@@ -47,10 +55,11 @@ router.post('/login', (req, res) => {
   });
 });
 
+
 // Update user profile
 router.put('/update', (req, res) => {
   const { username, email } = req.body;
-  const userId = req.user.id;
+  const userId = req.session.user.id; // Get the user ID from the session
 
   const updateQuery = 'UPDATE users SET username=?, email=? WHERE id=?';
   db.query(updateQuery, [username, email, userId], (err, results) => {
