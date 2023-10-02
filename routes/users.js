@@ -31,18 +31,18 @@ router.post('/login', (req, res) => {
     const rows = results[0];
 
     if (rows.length === 0) {
-      res.status(401).json({ error: 'Invalid credentials' });
-    } else {
-      const user = rows[0];
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
-      // Verify the password (You should replace this with password hashing in the future)
-      if (password === user.password) {
-        // Create a session for the user (you will need to use a session middleware, e.g., express-session)
-        req.session.user = { id: user.id, username: user.username, email: user.email };
-        res.status(200).json({ message: 'Login successful' });
-      } else {
-        res.status(401).json({ error: 'Invalid credentials' });
-      }
+    const user = rows[0];
+
+    // Verify the password (You should replace this with password hashing in the future)
+    if (password === user.password) {
+      // Create a session for the user (you will need to use a session middleware, e.g., express-session)
+      req.session.user = { id: user.id, username: user.username, email: user.email };
+      return res.status(200).json({ message: 'Login successful' });
+    } else {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
   });
 });
