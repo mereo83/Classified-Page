@@ -3,27 +3,32 @@ const router = express.Router();
 const db = require('../data/db');
 
 // Create Account
-router.post('/register', async (req, res) => {
+router.post('/register', (req, res) => {
   const { username, email, password } = req.body;
 
-  try {
-    const insertQuery = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-    const result = await db.query(insertQuery, [username, email, password]);
-
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const insertQuery = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+  db.query(insertQuery, [username, email, password], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.status(201).json({ message: 'User registered successfully' });
+    }
+  });
 });
 
 // Log In
-router.post('/login', async (req, res) => {
+router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    const selectQuery = 'SELECT * FROM users WHERE email = ?';
-    const [rows] = await db.query(selectQuery, [email]);
+  const selectQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(selectQuery, [email], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    const rows = results[0];
 
     if (rows.length === 0) {
       res.status(401).json({ error: 'Invalid credentials' });
@@ -39,30 +44,27 @@ router.post('/login', async (req, res) => {
         res.status(401).json({ error: 'Invalid credentials' });
       }
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  });
 });
 
 // Update user profile
-router.put('/update', async (req, res) => {
+router.put('/update', (req, res) => {
   const { username, email } = req.body;
   const userId = req.user.id;
 
-  try {
-    const updateQuery = 'UPDATE users SET username=?, email=? WHERE id=?';
-    const result = await db.query(updateQuery, [username, email, userId]);
+  const updateQuery = 'UPDATE users SET username=?, email=? WHERE id=?';
+  db.query(updateQuery, [username, email, userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
 
-    if (result.affectedRows === 0) {
+    if (results.affectedRows === 0) {
       res.status(404).json({ error: 'User not found or you do not have permission to update it' });
     } else {
       res.json({ message: 'User profile updated successfully' });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  });
 });
 
 // Get User Profile
