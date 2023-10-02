@@ -4,9 +4,10 @@ const express = require('express');
 const app = express();
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const port = 3000;
+const port = 9000;
 
 // ... Other imports and middleware ...
+app.use(express.json());
 
 app.use(cookieParser());
 app.use(

@@ -1,7 +1,7 @@
 {
   "name": "olx-clone",
   "version": "1.0.0",
-  "description": "",
+  "description": "��#\u0000 \u0000C\u0000l\u0000a\u0000s\u0000s\u0000i\u0000f\u0000i\u0000e\u0000d\u0000-\u0000P\u0000a\u0000g\u0000e\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.3",
     "mysql2": "^3.6.1",
+    "mysql2-promise": "^0.1.4",
     "nodemon": "^3.0.1",
     "parser": "^0.1.4"
   }
