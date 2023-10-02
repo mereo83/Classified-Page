@@ -1,52 +1,72 @@
--- Create the OLX-like classified database
-CREATE DATABASE olx_classified;
+CREATE DATABASE ClassifiedApp;
 
-USE olx_classified;
 
--- Create the users table with indexing on email
-CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  INDEX (email)
+CREATE TABLE User(
+id int NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT
+username varchar(50) NOT NULL UNIQUE,
+email varchar(50) NOT NULL UNIQUE,
+passwd varchar(50) NOT NULL,
+created_on datetime,
+updated_on datetime
 );
 
--- Create the listings table with indexing on user_id
-CREATE TABLE listings (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  category VARCHAR(255) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  location VARCHAR(255) NOT NULL,
-  contact_info VARCHAR(255) NOT NULL,
-  user_id INT NOT NULL,
-  INDEX (user_id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+
+CREATE TABLE Category(
+id int NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT,
+title varchar(50) NOT NULL,
+created_on datetime,
+updated_on datetime
 );
+
+CREATE TABLE Products(
+id int NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT
+category_id int NOT NULL,
+title varchar(50) NOT NULL UNIQUE,
+price varchar(50) NOT NULL UNIQUE,
+paddress varchar(50) NOT NULL,
+pstatus varchar(50) NOT NULL default=1,
+created_on datetime,
+updated_on datetime,
+FOREIGN KEY(category_id) REFERENCES Category(id)
+);
+
+
+CREATE TABLE Contact(
+id int NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT
+userid int NOT NULL,
+productid int NOT NULL,
+cmessage varchar(250) NOT NULL UNIQUE,
+created_on datetime,
+updated_on datetime,
+FOREIGN KEY(userid) REFERENCES User(id),
+FOREIGN KEY(productid) REFERENCES Products(id)
+);
+
 
 -- Create the comments table with indexing on user_id and listing_id
 CREATE TABLE comments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   content TEXT NOT NULL,
-  listing_id INT NOT NULL,
+  product_id INT NOT NULL,
   user_id INT NOT NULL,
-  INDEX (listing_id),
+  INDEX (product_id),
   INDEX (user_id),
-  FOREIGN KEY (listing_id) REFERENCES listings(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  FOREIGN KEY (user_id) REFERENCES User(id)
 );
+
 
 -- Create the contact_messages table with indexing on user_id, listing_id, and email
 CREATE TABLE contact_messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
   message TEXT NOT NULL,
-  listing_id INT NOT NULL,
+  product_id INT NOT NULL,
   user_id INT NOT NULL,
   sender_type ENUM('buyer', 'seller') NOT NULL,
-  INDEX (listing_id),
+  INDEX (product_id),
   INDEX (user_id),
-  FOREIGN KEY (listing_id) REFERENCES listings(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  FOREIGN KEY (user_id) REFERENCES User(id)
 );
+
+
