@@ -9,7 +9,7 @@ router.post('/:listingId/seller', (req, res) => {
   const userId = req.user.id;
 
   // SQL query to insert a message to the seller
-  const insertQuery = 'INSERT INTO contact_messages (listing_id, user_id, message, sender_type) VALUES (?, ?, ?, ?)';
+  const insertQuery = 'INSERT INTO Contact (productid, userid, cmessage) VALUES (?, ?, ?, ?)';
   
   // Execute the query with the provided details
   db.query(insertQuery, [listingId, userId, message, 'buyer'], (err, results) => {
@@ -29,7 +29,7 @@ router.post('/:listingId/buyer', (req, res) => {
   const userId = req.user.id;
 
   // SQL query to insert a message to the buyer
-  const insertQuery = 'INSERT INTO contact_messages (listing_id, user_id, message, sender_type) VALUES (?, ?, ?, ?)';
+  const insertQuery = 'INSERT INTO Contact (productid, userid, cmessage) VALUES (?, ?, ?, ?)';
   
   // Execute the query with the provided details
   db.query(insertQuery, [listingId, userId, message, 'seller'], (err, results) => {
@@ -48,7 +48,7 @@ router.get('/:listingId/messages', (req, res) => {
   const userId = req.user.id;
 
   // SQL query to retrieve messages for a specific listing
-  const selectQuery = 'SELECT * FROM contact_messages WHERE listing_id = ? AND (user_id = ? OR sender_type = ?)';
+  const selectQuery = 'SELECT * FROM Contact WHERE productid = ? AND (userid = ? OR sender_type = ?)';
   
   // Execute the query with the provided details
   db.query(selectQuery, [listingId, userId, 'seller'], (err, results) => {

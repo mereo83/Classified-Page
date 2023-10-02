@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../data/db');
+const db = require('../data/db'); // Import the db module
 
 // Create a comment on a listing
 router.post('/create/:listingId', (req, res) => {
   const listingId = req.params.listingId;
-  const { content } = req.body;
+  const { cmessage } = req.body; // Assuming cmessage corresponds to comment content
   const userId = req.user.id;
 
   // SQL query to insert a comment on a listing
-  const insertQuery = 'INSERT INTO comments (listing_id, user_id, content) VALUES (?, ?, ?)';
+  const insertQuery = 'INSERT INTO Contact (productid, userid, cmessage) VALUES (?, ?, ?)';
   
   // Execute the query with the provided details
-  db.query(insertQuery, [listingId, userId, content], (err, results) => {
+  db.query(insertQuery, [listingId, userId, cmessage], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
@@ -27,7 +27,7 @@ router.get('/:listingId', (req, res) => {
   const listingId = req.params.listingId;
 
   // SQL query to retrieve comments for a specific listing
-  const selectQuery = 'SELECT * FROM comments WHERE listing_id = ?';
+  const selectQuery = 'SELECT * FROM Contact WHERE productid = ?';
   
   // Execute the query with the provided details
   db.query(selectQuery, [listingId], (err, results) => {
@@ -44,14 +44,14 @@ router.get('/:listingId', (req, res) => {
 // Update a comment on a listing
 router.put('/:commentId', (req, res) => {
   const commentId = req.params.commentId;
-  const { content } = req.body;
+  const { cmessage } = req.body; // Assuming cmessage corresponds to comment content
   const userId = req.user.id;
 
   // SQL query to update a comment if it belongs to the authenticated user
-  const updateQuery = 'UPDATE comments SET content = ? WHERE id = ? AND user_id = ?';
+  const updateQuery = 'UPDATE Contact SET cmessage = ? WHERE id = ? AND userid = ?';
   
   // Execute the query with the provided details
-  db.query(updateQuery, [content, commentId, userId], (err, results) => {
+  db.query(updateQuery, [cmessage, commentId, userId], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
@@ -71,7 +71,7 @@ router.delete('/:commentId', (req, res) => {
   const userId = req.user.id;
 
   // SQL query to delete a comment if it belongs to the authenticated user
-  const deleteQuery = 'DELETE FROM comments WHERE id = ? AND user_id = ?';
+  const deleteQuery = 'DELETE FROM Contact WHERE id = ? AND userid = ?';
   
   // Execute the query with the provided details
   db.query(deleteQuery, [commentId, userId], (err, results) => {

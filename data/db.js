@@ -4,7 +4,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'Blessme@12',
-  database: 'olx_classified',
+  database: 'classifiedapp',
 });
 
 db.connect((err) => {

@@ -16,7 +16,7 @@ router.use(
 router.post('/register', (req, res) => {
   const { username, email, password } = req.body;
 
-  const insertQuery = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+  const insertQuery = 'INSERT INTO User (username, email, passwd) VALUES (?, ?, ?)';
   db.query(insertQuery, [username, email, password], (err, results) => {
     if (err) {
       console.error(err);
@@ -31,7 +31,7 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  const selectQuery = 'SELECT * FROM users WHERE email = ?';
+  const selectQuery = 'SELECT * FROM User WHERE email = ?';
   db.query(selectQuery, [email], (err, results) => {
     if (err) {
       console.error(err);
@@ -45,7 +45,7 @@ router.post('/login', (req, res) => {
     const user = results[0]; // Access the first row of results
 
     // Verify the password (You should replace this with password hashing in the future)
-    if (password === user.password) {
+    if (password === user.passwd) {
       // Create a session for the user
       req.session.user = { id: user.id, username: user.username, email: user.email };
       return res.status(200).json({ message: 'Login successful' });
@@ -61,7 +61,7 @@ router.put('/update', (req, res) => {
   const { username, email } = req.body;
   const userId = req.session.user.id; // Get the user ID from the session
 
-  const updateQuery = 'UPDATE users SET username=?, email=? WHERE id=?';
+  const updateQuery = 'UPDATE User SET username=?, email=? WHERE id=?';
   db.query(updateQuery, [username, email, userId], (err, results) => {
     if (err) {
       console.error(err);

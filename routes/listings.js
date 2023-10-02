@@ -4,14 +4,14 @@ const db = require('../data/db');
 
 // Create a new listing
 router.post('/create', (req, res) => {
-  const { title, description, category, price, location, contactInfo } = req.body;
+  const { title, description, categoryId, price, paddress } = req.body;
   const userId = req.user.id; // Get the user ID from the authenticated user
 
   // SQL query to insert a new listing into the database
-  const insertQuery = 'INSERT INTO listings (title, description, category, price, location, contact_info, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const insertQuery = 'INSERT INTO Products (title, description, category_id, price, paddress, userid) VALUES (?, ?, ?, ?, ?, ?)';
   
   // Execute the query with the provided listing details and the user ID
-  db.query(insertQuery, [title, description, category, price, location, contactInfo, userId], (err, results) => {
+  db.query(insertQuery, [title, description, categoryId, price, paddress, userId], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
@@ -26,7 +26,7 @@ router.get('/:listingId', (req, res) => {
   const listingId = req.params.listingId; // Get the listing ID from the URL
 
   // SQL query to retrieve a single listing by its ID
-  const selectQuery = 'SELECT * FROM listings WHERE id = ?';
+  const selectQuery = 'SELECT * FROM Products WHERE id = ?';
   
   // Execute the query with the listing ID
   db.query(selectQuery, [listingId], (err, results) => {
@@ -51,10 +51,10 @@ router.get('/search', (req, res) => {
   const { category, location, minPrice, maxPrice, keywords } = req.query; // Get search parameters from query
 
   // SQL query to search for listings based on provided criteria
-  const selectQuery = 'SELECT * FROM listings WHERE category LIKE ? AND location LIKE ? AND price BETWEEN ? AND ? AND title LIKE ?';
+  const selectQuery = 'SELECT * FROM Products WHERE category_id = ? AND paddress LIKE ? AND price BETWEEN ? AND ? AND title LIKE ?';
   
   // Execute the query with the search parameters
-  db.query(selectQuery, [`%${category}%`, `%${location}%`, minPrice, maxPrice, `%${keywords}%`], (err, results) => {
+  db.query(selectQuery, [category, `%${location}%`, minPrice, maxPrice, `%${keywords}%`], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'Internal server error' });
@@ -70,7 +70,7 @@ router.delete('/:listingId', (req, res) => {
   const userId = req.user.id; // Get the user ID from the authenticated user
 
   // SQL query to delete a listing by its ID and user ID (for authorization)
-  const deleteQuery = 'DELETE FROM listings WHERE id=? AND user_id=?';
+  const deleteQuery = 'DELETE FROM Products WHERE id=? AND userid=?';
   
   // Execute the query with the listing ID and user ID
   db.query(deleteQuery, [listingId, userId], (err, results) => {
@@ -94,7 +94,7 @@ router.post('/comment/:listingId', (req, res) => {
   const userId = req.user.id; // Get the user ID from the authenticated user
 
   // SQL query to insert a comment into the database for a specific listing
-  const insertQuery = 'INSERT INTO listing_comments (listing_id, user_id, content) VALUES (?, ?, ?)';
+  const insertQuery = 'INSERT INTO Comments (productid, userid, cmessage) VALUES (?, ?, ?)';
   
   // Execute the query with the listing ID, user ID, and comment content
   db.query(insertQuery, [listingId, userId, commentContent], (err, results) => {
