@@ -9,6 +9,9 @@ router.use(
     secret: 'your_secret_key', // Change this to a strong secret
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      maxAge: 3600000, // Set your desired session duration in milliseconds
+    }
   })
 );
 
@@ -16,8 +19,11 @@ router.use(
 router.post('/register', (req, res) => {
   const { username, email, password } = req.body;
 
-  const insertQuery = 'INSERT INTO User (username, email, passwd) VALUES (?, ?, ?)';
-  db.query(insertQuery, [username, email, password], (err, results) => {
+  // Set the current date and time for both 'created_on' and 'updated_on'
+  const currentDate = new Date().toISOString();
+
+  const insertQuery = 'INSERT INTO User (username, email, passwd, created_on, updated_on) VALUES (?, ?, ?, ?, ?)';
+  db.query(insertQuery, [username, email, password, currentDate, currentDate], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
@@ -26,6 +32,7 @@ router.post('/register', (req, res) => {
     }
   });
 });
+
 
 // Log In
 router.post('/login', (req, res) => {
@@ -59,22 +66,45 @@ router.post('/login', (req, res) => {
 // Update user profile
 router.put('/update', (req, res) => {
   const { username, email } = req.body;
-  const userId = req.session.user.id; // Get the user ID from the session
+  
+  // Check if req.session.user exists and has an 'id' property
+  if (req.session.user && req.session.user.id) {
+    const userId = req.session.user.id; // Get the user ID from the session
 
-  const updateQuery = 'UPDATE User SET username=?, email=? WHERE id=?';
-  db.query(updateQuery, [username, email, userId], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
+    // Fetch the existing 'created_on' date from the database
+    db.query('SELECT created_on FROM User WHERE id = ?', [userId], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'User not found or you do not have permission to update it' });
-    } else {
-      res.json({ message: 'User profile updated successfully' });
-    }
-  });
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const createdOnDate = results[0].created_on;
+
+      // Update 'updated_on' and 'username' and 'email'
+      const updateQuery = 'UPDATE User SET username=?, email=?, updated_on=NOW() WHERE id=?';
+      db.query(updateQuery, [username, email, userId], (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'User not found or you do not have permission to update it' });
+        } else {
+          res.json({ message: 'User profile updated successfully', created_on: createdOnDate });
+        }
+      });
+    });
+  } else {
+    // Handle the case where the user is not authenticated
+    res.status(401).json({ error: 'Unauthorized' });
+  }
 });
+
 
 // Get User Profile
 router.get('/profile', (req, res) => {
