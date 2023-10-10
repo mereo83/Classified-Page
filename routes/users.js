@@ -14,6 +14,24 @@ router.use(
     }
   })
 );
+// This route returns the session data
+router.get('/get-session', (req, res) => {
+  try {
+    // Access the session data
+    const sessionData = req.session;
+
+    if (!sessionData) {
+      return res.status(404).json({ error: 'Session data not found' });
+    }
+
+    // Send the session data as a response
+    res.json({ session: sessionData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 // Create Account
 router.post('/register', (req, res) => {
